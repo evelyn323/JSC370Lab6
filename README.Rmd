@@ -136,7 +136,7 @@ paste(ids, collapse=",")
 ```
 
     
-```{r get-abstracts, eval = FALSE}
+```{r get-abstracts}
 ncbiurl2 <- "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
 publications <- GET(
@@ -165,10 +165,11 @@ Using the function `stringr::str_extract_all()` applied on `publications_txt`, c
 
 Write a regular expression that captures all such instances
 
-```{r univ-institute-regex, eval = FALSE}
+```{r univ-institute-regex}
+library(stringr)
 institution <- str_extract_all(
   publications_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
+  "University\\s+of\\s+(?:the\\s)?(?:South\\s)?[:alpha:]+|[:alpha:]+\\s+Institute\\s+of\\s+[:alpha:]+"
   ) 
 institution <- unlist(institution)
 as.data.frame(table(institution))
@@ -181,10 +182,10 @@ Repeat the exercise and this time focus on schools and departments in the form o
 
 And tabulate the results
 
-```{r school-department, eval = FALSE}
+```{r school-department}
 schools_and_deps <- str_extract_all(
-  abstracts_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
+  publications_txt,
+  "School\\s+of\\s+[:alpha:]+|Department\\s+of\\s+[:alpha:]+"
   )
 as.data.frame(table(schools_and_deps))
 ```
@@ -200,7 +201,7 @@ the XML a bit. We will use the `xml2::xml_children()` function to keep one eleme
 per id. This way, if a paper is missing the abstract, or something else, we will be able to properly match PUBMED IDS with their corresponding records.
 
 
-```{r one-string-per-response, eval = FALSE}
+```{r one-string-per-response}
 pub_char_list <- xml2::xml_children(publications)
 pub_char_list <- sapply(pub_char_list, as.character)
 ```
@@ -209,8 +210,10 @@ Now, extract the abstract and article title for each one of the elements of
 `pub_char_list`. You can either use `sapply()` as we just did, or simply
 take advantage of vectorization of `stringr::str_extract`
 
+
+
 ```{r extracting-last-bit, eval = FALSE}
-abstracts <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
+abstracts <- str_extract(pub_char_list, "<Abstract>[.\n]+</AbstractText>")
 abstracts <- str_remove_all(abstracts, "[CLEAN ALL THE HTML TAGS]")
 abstracts <- str_remove_all(abstracts, "[CLEAN ALL EXTRA WHITE SPACE AND NEW LINES]")
 ```

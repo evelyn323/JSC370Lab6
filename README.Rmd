@@ -3,6 +3,7 @@ title: "Lab 06 - Regular Expressions and Web Scraping"
 output: 
   tufte::tufte_html:
     css: style.css
+  github_document: default
 ---
 
 ```{r setup}
@@ -212,33 +213,39 @@ take advantage of vectorization of `stringr::str_extract`
 
 
 
-```{r extracting-last-bit, eval = FALSE}
-abstracts <- str_extract(pub_char_list, "<Abstract>[.\n]+</AbstractText>")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL THE HTML TAGS]")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL EXTRA WHITE SPACE AND NEW LINES]")
+```{r extracting-last-bit}
+abstracts <- str_extract(pub_char_list, "<Abstract>(\\n|.)+</Abstract>")
+# abstracts <- str_remove_all(abstracts, "<Abstract>|</Abstract>") #remove only abstract tags
+abstracts <- str_remove_all(abstracts, "<.*?>") #remove all html tags
+abstracts <- str_replace_all(abstracts, "\\s+", " ")
+length(pub_char_list)
+table(is.na(abstracts))
 ```
+
 
   - How many of these don't have an abstract? 
 
-_Answer here._
+Answer: 53 publications
 
 Now, the title
 
-```{r process-titles, eval = FALSE}
-titles <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
-titles <- str_remove_all(titles, "[CLEAN ALL THE HTML TAGS]")
+```{r process-titles}
+titles <- str_extract(pub_char_list, "<Title>(\\n|.)+</Title>")
+titles <- str_remove_all(titles, "<Title>|</Title>")
+table(is.na(titles))
 ```
 
 - How many of these don't have a title ? 
 
-_Answer here._
+Zero publications
 
 Finally, put everything together into a single `data.frame` and use
 `knitr::kable` to print the results
 
-```{r build-db, eval = FALSE}
+```{r build-db}
 database <- data.frame(
-  "[DATA TO CONCATENATE]"
+  title = titles,
+  abstract = abstracts
 )
 knitr::kable(database)
 ```

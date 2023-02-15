@@ -47,14 +47,12 @@ counts <- as.character(counts)
 
 # Extracting the data using regex
 stringr::str_extract(counts, "[0-9,]+")
+stringr::str_extract(counts, "[\\d,]+")
 ```
 
  - How many sars-cov-2 papers are there?
 
-
-_Answer here._
-
-There are 192,677 sars-cov-2 papers
+Answer: There are 192,677 sars-cov-2 papers
 
 Don't forget to commit your work!
 
@@ -73,10 +71,16 @@ Use the function `httr::GET()` to make the following query:
 The parameters passed to the query are documented [here](https://www.ncbi.nlm.nih.gov/books/NBK25499/).
 
 ```{r papers-covid-hawaii, eval=FALSE}
+ncbiurl <- "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+
 library(httr)
 query_ids <- GET(
-  url   = "BASELINE URL",
-  query = list("QUERY PARAMETERS")
+  url   = ncbiurl,
+  query = list(
+    db = "pubmed",
+    term = "covid19 hawaii",
+    retmax = 1000
+  )
 )
 
 # Extracting the content of the response of GET
@@ -89,6 +93,11 @@ data could be using lists with the function `xml2::as_list()`. We will skip the 
 
 Take a look at the data, and continue with the next question (don't forget to 
 commit and push your results to your GitHub repo!).
+
+```{r}
+ids
+```
+
 
 ## Question 3: Get details about the articles
 
